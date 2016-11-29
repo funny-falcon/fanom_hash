@@ -32,7 +32,7 @@ static inline uint32_t  fanom32_string_hash2(const void *buf, size_t len, uint32
 #endif
 #define fn_rotl(x, n) (((x) << (n)) | ((x) >> (sizeof(x)*8 - (n))))
 
-#ifdef FANOM_READ_UNALIGNED
+#if FANOM_READ_UNALIGNED
 static inline uint32_t fanom32_load_u32(const uint8_t *buf)
 {
 	return *(uint32_t*)buf;
