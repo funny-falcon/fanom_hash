@@ -39,9 +39,9 @@ static inline uint32_t fanom64_load_u32(const uint8_t *buf) {
 }
 static inline uint32_t fanom64_load_u64(const uint8_t *buf) {
 	const uint8_t *p = (const uint8_t*)buf;
-	uint32_t l = p[0] | (p[1]<<8) | (p[2]<<16) | (p[3]<<24);
-	uint32_t u = p[4] | (p[5]<<8) | (p[6]<<16) | (p[7]<<24);
-	return ((uint64_t)u << 32) | l;
+	return p[0] | (p[1]<<8) | (p[2]<<16) | (p[3]<<24) |
+		((uint64_t)p[4] << 32) | ((uint64_t)p[5] << 40) |
+		((uint64_t)p[6] << 48) | ((uint64_t)p[7] << 56);
 }
 #endif
 

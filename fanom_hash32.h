@@ -56,7 +56,7 @@ fanom32_load_u24(const uint8_t *v, unsigned len)
 
 #define unlikely(a) (__builtin_expect(!!(a), 0))
 #define likely(a) (__builtin_expect(!!(a), 1))
-static inline uint32_t
+static uint32_t
 fanom32_permute_string(const uint8_t *v, size_t len, uint32_t seed1, uint32_t seed2)
 {
 	uint32_t a=0;
