@@ -201,7 +201,7 @@ int main(int argc, char** argv) {
 		printf("tbl->size == %u\n", tbl.size);
 		if (check) {
 			uint32_t maxchain = 0;
-			double expectedmaxchain = log(tbl.bins) / log(log(tbl.bins));
+			double expectedmaxchain = 2 * log(tbl.bins) / log(log(tbl.bins));
 			std::map<uint64_t, uint32_t> counter;
 			int ret = 0;
 			for (i = 0; i < tbl.bins; i++) {
@@ -217,8 +217,8 @@ int main(int argc, char** argv) {
 					maxchain = chain;
 			}
 			printf("checksum %08x %08x\n", checksum[0], checksum[1]);
-			printf("maxchain: %u (expected %f)", maxchain, expectedmaxchain*2);
-			if (maxchain > expectedmaxchain*3) {
+			printf("maxchain: %u (expected %f)", maxchain, expectedmaxchain);
+			if (maxchain > expectedmaxchain*2) {
 				printf("(!!! maxchain overflow)");
 				ret = 1;
 			}
