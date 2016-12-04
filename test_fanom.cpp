@@ -4,7 +4,8 @@
 #include <string.h>
 #include <memory.h>
 #include <assert.h>
-#include <set>
+#include <math.h>
+#include <map>
 #include <unordered_set>
 #include <string>
 #include "fanom_hash.h"
@@ -56,11 +57,11 @@ void table_rehash(table *table) {
 
 static int use_32 = 0;
 void table_insert(table *table, const char* str, size_t len) {
-	uint64_t hash = fanom64_string_hash2(str, len, seed[0], seed[1]);
+	uint64_t hash;
 	uint32_t pos;
 	entry* en;
 	/* lets fill factor to be 3x, so it will be easier to get collisions */
-	if (table->size == table->bins * 3) {
+	if (table->size == table->bins) {
 		table_rehash(table);
 	}
 	if (use_32 == 0) {
@@ -199,14 +200,59 @@ int main(int argc, char** argv) {
 
 		printf("tbl->size == %u\n", tbl.size);
 		if (check) {
+			uint32_t maxchain = 0;
+			double expectedmaxchain = log(tbl.bins) / log(log(tbl.bins));
+			std::map<uint64_t, uint32_t> counter;
+			int ret = 0;
 			for (i = 0; i < tbl.bins; i++) {
+				uint32_t chain = 0;
 				entry* e = tbl.entries[i];
 				while (e != NULL) {
+					chain++;
 					checksum_add(e->str, e->len);
+					counter[e->hash]++;
 					e = e->next;
 				}
+				if (chain > maxchain)
+					maxchain = chain;
 			}
 			printf("checksum %08x %08x\n", checksum[0], checksum[1]);
+			printf("maxchain: %u (expected %f)", maxchain, expectedmaxchain*2);
+			if (maxchain > expectedmaxchain*3) {
+				printf("(!!! maxchain overflow)");
+				ret = 1;
+			}
+			printf("\n");
+			if (counter.size() != tbl.size) {
+				double ncoll = tbl.size - (uint32_t)counter.size();
+				double expected = 0;
+				uint32_t maxcnt = 0;
+				if (use_32) {
+					double d = pow(2,32);
+					double n = tbl.size;
+					/* https://en.wikipedia.org/wiki/Birthday_problem#Collision_counting */
+					expected = n - d + d*pow((d-1)/d, n);
+					if (expected > 0.01 && ncoll <= 2) {
+						ret = 0;
+					} else {
+						ret = expected*4 < ncoll;
+					}
+				} else {
+					ret = 1;
+				}
+				for (auto& pair: counter) {
+					if (pair.second-1 > maxcnt) {
+						maxcnt = pair.second-1;
+					}
+				}
+				printf("Has full hash collision: %u same hashes for %u values (expected %f)\n",
+						(uint32_t)ncoll, tbl.size, expected);
+				if (maxcnt > 1) {
+					printf("Max full collision: %u\n", maxcnt);
+					ret = 1;
+				}
+			}
+			return ret;
 		}
 	} else {
 		if (set.size() == 0) {
