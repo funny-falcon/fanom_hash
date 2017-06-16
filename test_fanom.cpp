@@ -129,6 +129,8 @@ int main(int argc, char** argv) {
 	int use_std = 0;
 	int check = 0;
 	int binary = 0;
+	int only_hash = 0;
+	uint32_t sum = 0;
 	ssize_t lsize;
 	char *lbuf = NULL;
 	size_t lcapa = 0;
@@ -147,6 +149,8 @@ int main(int argc, char** argv) {
 			use_32 = 1;
 		} else if (strcmp(argv[i], "-x") == 0) {
 			hex = 1;
+		} else if (strcmp(argv[i], "-o") == 0) {
+			only_hash = 1;
 		} else if (strcmp(argv[i], "-b") == 0) {
 			i++;
 			if (i == argc)
@@ -171,7 +175,13 @@ int main(int argc, char** argv) {
 	if (binary) {
 		lbuf = (char*)malloc(binary+1);
 		while ((lsize = fread(lbuf, 1, binary, stdin)) > 0) {
-			if (use_std == 0) {
+			if (only_hash) {
+				if (use_32 == 0) {
+					sum += fanom64_string_hash2(lbuf, lsize, seed[0], seed[1]);
+				} else {
+					sum += fanom32_string_hash2(lbuf, lsize, seed[0], seed[1]);
+				}
+			} else if (use_std == 0) {
 				table_insert(&tbl, lbuf, lsize);
 			} else {
 				set.insert(std::string(lbuf, lsize));
@@ -185,12 +195,23 @@ int main(int argc, char** argv) {
 				dehexify(lbuf, lsize);
 				lsize /= 2;
 			}
-			if (use_std == 0) {
+			if (only_hash) {
+				if (use_32 == 0) {
+					sum += fanom64_string_hash2(lbuf, lsize, seed[0], seed[1]);
+				} else {
+					sum += fanom32_string_hash2(lbuf, lsize, seed[0], seed[1]);
+				}
+			} else if (use_std == 0) {
 				table_insert(&tbl, lbuf, lsize);
 			} else {
 				set.insert(std::string(lbuf, lsize));
 			}
 		}
+	}
+
+	if (only_hash) {
+		printf("Sum = %u\n", sum);
+		return 0;
 	}
 
 	if (use_std == 0) {
@@ -276,6 +297,7 @@ usage:
 		"\t-32    - use 32bit fanom hash function\n" \
 		"\t-c     - at the end, compute checksum for all inserted strings\n" \
 		"\t-s     - use c++ set to check hash table implementation\n" \
+		"\t-o     - only hash, do not hash table\n" \
 		"\t--help - this help.\n");
 	return 0;
 }

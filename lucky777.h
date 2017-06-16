@@ -16,6 +16,11 @@ static inline uint32_t  lucky777_string_hash(const void *buf, size_t len, uint32
 static inline uint32_t  lucky777_string_hash2(const void *buf, size_t len, uint32_t seed1, uint32_t seed2);
 /* convenient function to hash buffer with 96bit seed */
 static inline uint32_t  lucky777_string_hash3(const void *buf, size_t len, uint32_t seed1, uint32_t seed2, uint32_t seed3);
+/* permutate state with integer value.
+ * Note: initial state should not be all-zero. */
+static inline void lucky777_permute(uint32_t v, uint32_t *a, uint32_t *b);
+/* finalize state to hash value */
+static inline uint32_t lucky777_finalize(uint32_t a, uint32_t b);
 
 /* IMPLEMENTATION */
 #ifndef LUCKY777_READ_UNALIGNED
@@ -24,7 +29,7 @@ static inline uint32_t  lucky777_string_hash3(const void *buf, size_t len, uint3
 #define l7_rotl(x, n) (((x) << (n)) | ((x) >> (sizeof(x)*8 - (n))))
 #define l7_rotr(x, n) (((x) << (sizeof(x)*8 - (n))) | ((x) >> (n)))
 
-#if FANOM_READ_UNALIGNED
+#if LUCKY777_READ_UNALIGNED
 static inline uint32_t lucky777_load_u32(const uint8_t *buf)
 {
 	return *(uint32_t*)buf;
@@ -66,8 +71,6 @@ lucky777_finalize(uint32_t a, uint32_t b)
 	return b;
 }
 
-#define unlikely(a) (__builtin_expect(!!(a), 0))
-#define likely(a) (__builtin_expect(!!(a), 1))
 static uint32_t
 lucky777_permute_string(const uint8_t *v, size_t len, uint32_t seed1, uint32_t seed2, uint32_t seed3)
 {

@@ -28,7 +28,8 @@ which not relies and 64bit arithmetic.
 # lucky777
 
 lucky777.h contains simple 32bit hash function with 32bit output.
-It is not as fast as fanom, but it is still a bit faster than Murmur3_x32.
+It is not as fast as fanom, but it is still a bit faster than Murmur3_x32 and
+passes whole SMHasher.
 It is much simpler than fanom, and has clean separate functions:
 `lucky777_permute(v, &a, &b)` and `lucky777_finalize(a, b)`
 so you can easily integrate it for hashing data structure different from strings.
