@@ -9,13 +9,6 @@
  *
  * But if you like licenses, than you may count it is under MIT Licence.
  */
-/*
- * Copyright (C) 2014 Sokolov Yura aka funny_falcon
- *
- * It is in public domain, free to use and modify by everyone for any usage.
- * I will be glad, if you put copyright notice above in your code or distribution, but you don't ought to.
- * I'm not responsible for any damage cause by this piece of code.
- */
 
 /* API */
 

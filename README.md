@@ -1,4 +1,6 @@
-# fanom_hash
+# Fanom_hash and Lucky777
+
+## fanom_hash
 FAst NOn-Multiplicative hash :-)
 
 fanom_hash.h contains fast non-multiplicative function for 64bit processor.
@@ -23,16 +25,12 @@ and just slightly slower than Murmur3_x64.
 So, fanom32 is a good function, if you need fast crossplatform hash function
 which not relies and 64bit arithmetic.
 
-## argue
-I argued against @ticki ( https://github.com/ticki ) it has no seed independent collision.
-If it has I will give @ticki 50$.
-If it hasn't, @ticki will write a blog post about this function.
+# lucky777
 
-For the argue, test_fanom.c is written.
-It reads a seed from /dev/urantom, then it reads stdin line by line and
-inserts it into simple chained hash table.
+lucky777.h contains simple 32bit hash function with 32bit output.
+It is not as fast as fanom, but it is still a bit faster than Murmur3_x32.
+It is much simpler than fanom, and has clean separate functions:
+`lucky777_permute(v, &a, &b)` and `lucky777_finalize(a, b)`
+so you can easily integrate it for hashing data structure different from strings.
 
-If there is a file with strings that leads to notable performace degradation compared to
-random strings, then I loose.
-
-Copyright 2016 Sokolov Yura aka funny-falcon.
+Copyright 2016-2017 Sokolov Yura aka funny-falcon.
