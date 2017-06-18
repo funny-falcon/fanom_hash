@@ -16,6 +16,8 @@ static int custom_seed = 0;
 #define hashsum(str, len) lucky777_string_hash3((str), (len), seed[0], seed[1], seed[2])
 #include "check.inc.cpp"
 
+static char buffer[1024*1024];
+
 int main(int argc, char** argv) {
 	unsigned i;
 	int hex = 0;
@@ -64,6 +66,10 @@ int main(int argc, char** argv) {
 		} else {
 			goto usage;
 		}
+	}
+
+	if (only_hash != 2) {
+		setbuffer(stdin, buffer, sizeof(buffer));
 	}
 
 	if (custom_seed == 0 && !only_hash || custom_seed == -1) {
