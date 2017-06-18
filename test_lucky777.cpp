@@ -86,9 +86,9 @@ int main(int argc, char** argv) {
 	} else if (custom_seed == 1) {
 		const uint32_t c = 0xeb0d2f41;
 		seed[1] = seed[0] ^ c;
-		seed[2] = ((seed[0]<<15)|(seed[0]>>17)) ^ c;
+		seed[2] = 0;
 	} else if (custom_seed == 2) {
-		seed[2] = seed[0] ^ seed[1];
+		seed[2] = 0;
 	}
 	
 

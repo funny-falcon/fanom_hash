@@ -84,7 +84,10 @@ lucky777_permute_string(const uint8_t *v, size_t len, uint32_t seed1, uint32_t s
 	}
 	if (len) l |= lucky777_load_u24(v, len);
 	lucky777_permute(l, &a, &b);
-	b ^= seed3;
+	/* note: next line is quite optional. Just last insane "sanity" option.
+	 * It could be ommited, or could be `b ^= seed3`, or you could modify a
+	 * instead. */
+	b += seed3;
 	return lucky777_finalize(a, b);
 }
 
@@ -92,13 +95,13 @@ static inline uint32_t
 lucky777_string_hash(const void* d, size_t len, uint32_t seed)
 {
 	const uint32_t c = 0xeb0d2f41;
-	return lucky777_permute_string((const uint8_t*)d, len, seed, seed^c, l7_rotl(seed,15)^c);
+	return lucky777_permute_string((const uint8_t*)d, len, seed, seed^c, 0);
 }
 
 static inline uint32_t
 lucky777_string_hash2(const void* d, size_t len, uint32_t seed1, uint32_t seed2)
 {
-	return lucky777_permute_string((const uint8_t*)d, len, seed1, seed2, seed1^seed2);
+	return lucky777_permute_string((const uint8_t*)d, len, seed1, seed2, 0);
 }
 
 static inline uint32_t
