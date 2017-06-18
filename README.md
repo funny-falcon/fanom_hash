@@ -1,5 +1,10 @@
 # Fanom_hash and Lucky777
 
+Couple of hash-sum functions suitable for internal hash tables.
+Also they could be used for checksumming if no crypto-strong security required.
+(ie I believe, it is quite hard to produce collisions if no seed nor hashsum
+are exposed (in contrast to CRC32 and Murmur3_32), but could be easy otherwise).
+
 ## fanom_hash
 FAst NOn-Multiplicative hash :-)
 
@@ -25,11 +30,11 @@ and just slightly slower than Murmur3_x64.
 So, fanom32 is a good function, if you need fast crossplatform hash function
 which not relies and 64bit arithmetic.
 
-# lucky777
+## lucky777
 
 lucky777.h contains simple 32bit hash function with 32bit output.
-It is not as fast as fanom, but it is still a bit faster than Murmur3_x32 and
-passes whole SMHasher.
+It is not as fast as fanom on long strings, but it is still a bit faster than
+Murmur3_x32 and passes whole SMHasher.
 It is much simpler than fanom, and has clean separate functions:
 `lucky777_permute(v, &a, &b)` and `lucky777_finalize(a, b)`
 so you can easily integrate it for hashing data structure different from strings.
