@@ -176,10 +176,11 @@ usage:
 	"\t-c      - at the end, detect collisions and chain length, and\n" \
 	"\t          calculate independent checksum for all inserted strings\n");
 	printf("  example for \"test vector\":\n" \
-		"\techo 'a1b2bc3def' | %s -oo -seed 2\n" \
-		"\techo 'a1b2bc3def' | %s -oo -x -seed 2\n" \
-		"\t%s -oo -seed 2 < test_lucky777.cpp\n",
-		argv[0], argv[0], argv[0]
+		"\t%s < test_lucky777.cpp\n" \
+		"\techo 'a1b2bc3def' | %s \n" \
+		"\techo 'a1b2bc3def' | %s -seed 2 -seed 3 -seed 4\n" \
+		"\techo 'a1b2bc3def' | %s -x -seed 2 -seed 3 -seed 4\n",
+		argv[0], argv[0], argv[0], argv[0]
 		);
 	return 0;
 }
