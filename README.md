@@ -39,4 +39,6 @@ It is much simpler than fanom, and has clean separate functions:
 `lucky777_permute(v, &a, &b)` and `lucky777_finalize(a, b)`
 so you can easily integrate it for hashing data structure different from strings.
 
+There is lucky777 implementation for PicoLISP: https://bitbucket.org/mihailp/tankfeeder/src/default/hash/lucky777.l
+
 Copyright 2016-2017 Sokolov Yura aka funny-falcon.
