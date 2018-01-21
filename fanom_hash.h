@@ -48,9 +48,15 @@ static inline uint32_t fanom64_load_u64(const uint8_t *buf) {
 static inline uint32_t
 fanom64_load_u24(const uint8_t *v, unsigned len)
 {
-	uint32_t x = v[0];
-	x |= (uint32_t)v[len/2] << 8;
-	x |= (uint32_t)v[len-1] << 16;
+	uint32_t x = 0;
+	switch (len) {
+	case 3: x = ((uint32_t)v[2]<<16) | *(uint16_t*)v;
+		break;
+	case 2: x = *(uint16_t*)v;
+		break;
+	case 1: x = v[0];
+		break;
+	}
 	return x;
 }
 
@@ -63,27 +69,25 @@ fanom64_permute_string(const uint8_t *v, size_t len, uint64_t seed1, uint64_t se
 	uint64_t d=seed2;
 	uint64_t l = len;
 	uint64_t t = 0;
-	switch (len) {
-	case 0: break;
-	case 1: case 2: case 3:
-		a = fanom64_load_u24(v, len);
-		break;
-	case 4:
-		a = fanom64_load_u32(v);
-		break;
-	case 5: case 6: case 7:
-		a = fanom64_load_u32(v);
-		b = fanom64_load_u24(v+4, len&3);
-		break;
-	case 8:
-		a = fanom64_load_u32(v);
-		b = fanom64_load_u32(v+4);
-		break;
-	case 9: case 10: case 11: case 12: case 13: case 14: case 15:
-		a = fanom64_load_u64(v);
-		b = fanom64_load_u64(v+len-8);
-		break;
-	default:
+	if (len <= 16) {
+		b = fanom64_load_u24(v+(len&~3), len&3);
+		switch (len>>2) {
+		case 0:
+			break;
+		case 1:
+			a = fanom64_load_u32(v);
+			break;
+		case 3:
+			b |= (uint64_t)fanom64_load_u32(v+8) << 32;
+		case 2:
+			a = fanom64_load_u64(v);
+			break;
+		case 4:
+			a = fanom64_load_u64(v);
+			b = fanom64_load_u64(v+8);
+			break;
+		}
+	} else {
 		for(; len>16; len-=16, v+=16) {
 			a ^= fanom64_load_u64(v);
 			b ^= fanom64_load_u64(v+8);
@@ -94,11 +98,13 @@ fanom64_permute_string(const uint8_t *v, size_t len, uint64_t seed1, uint64_t se
 			c = fn_rotl(c, 24) ^ a;
 			d = fn_rotl(d, 1) ^ b;
 		}
-		a ^= fanom64_load_u64(v+len-16);
+		if (len > 8) {
+			a ^= fanom64_load_u64(v);
+		}
 		b ^= fanom64_load_u64(v+len-8);
 	}
-	c += b; c -= fn_rotl(a, 9);
-	d += a; d -= fn_rotl(b, 58);
+	c += b; c -= fn_rotl(a + seed2, 9);
+	d += a; d -= fn_rotl(b + seed1, 58);
 	t = (seed1 ^ l) - fn_rotl(a^b, 7);
 	t ^= d; t -= fn_rotl(d,46);
 	c ^= t; c -= fn_rotl(t,22);
