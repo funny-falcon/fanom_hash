@@ -93,10 +93,10 @@ fanom64_permute_string(const uint8_t *v, size_t len, uint64_t seed1, uint64_t se
 			b ^= fanom64_load_u64(v+8);
 			c += a;
 			d += b;
-			a = fn_rotl(a, 5) - d;
-			b = fn_rotl(b, 7) - c;
-			c = fn_rotl(c, 24) ^ a;
-			d = fn_rotl(d, 1) ^ b;
+			a = fn_rotl(a, 5) ^ d;
+			b = fn_rotl(b, 7) ^ c;
+			c = fn_rotl(c, 24) + a;
+			d = fn_rotl(d, 1) + b;
 		}
 		if (len > 8) {
 			a ^= fanom64_load_u64(v);

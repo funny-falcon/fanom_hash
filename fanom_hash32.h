@@ -41,9 +41,15 @@ static inline uint32_t fanom32_load_u32(const uint8_t *buf)
 static inline uint32_t
 fanom32_load_u24(const uint8_t *v, unsigned len)
 {
-	uint32_t x = v[0];
-	x |= (uint32_t)v[len/2] << 8;
-	x |= (uint32_t)v[len-1] << 16;
+	uint32_t x = 0;
+	switch (len) {
+	case 3: x = ((uint32_t)v[2]<<16) | *(uint16_t*)v;
+		break;
+	case 2: x = *(uint16_t*)v;
+		break;
+	case 1: x = v[0];
+		break;
+	}
 	return x;
 }
 
@@ -58,40 +64,36 @@ fanom32_permute_string(const uint8_t *v, size_t len, uint32_t seed1, uint32_t se
 	uint32_t d=seed2;
 	uint32_t l = len;
 	uint32_t t = 0;
-	switch (len) {
-	case 0: break;
-	case 1: case 2: case 3:
-		a = t = fanom32_load_u24(v, len);
-		break;
-	case 4:
-		a = t = fanom32_load_u32(v);
-		break;
-	case 5: case 6: case 7:
-		a = fanom32_load_u32(v);
-		b = fanom32_load_u24(v+4, len&3);
-		break;
-	case 8:
-		a = fanom32_load_u32(v);
-		b = fanom32_load_u32(v+4);
-		break;
-	default:
+	if (len <= 8) {
+		b = fanom32_load_u24(v+(len&~3), len&3);
+		switch (len>>2) {
+		case 2:
+			b = fanom32_load_u32(v+4);
+		case 1:
+			a = fanom32_load_u32(v);
+		case 0:
+			break;
+		}
+	} else {
 		for(; len>8; len-=8, v+=8) {
 			a ^= fanom32_load_u32(v);
 			b ^= fanom32_load_u32(v+4);
 			c += a;
 			d += b;
-			a = fn_rotl(a, 5) - d;
-			b = fn_rotl(b, 7) - c;
-			c = fn_rotl(c, 24) ^ a;
-			d = fn_rotl(d, 1) ^ b;
+			a = fn_rotl(a, 5) ^ d;
+			b = fn_rotl(b, 7) ^ c;
+			c = fn_rotl(c, 24) + a;
+			d = fn_rotl(d, 1) + b;
 		}
-		a ^= fanom32_load_u32(v+len-8);
+		if (len > 4) {
+			a ^= fanom32_load_u32(v);
+		}
 		b ^= fanom32_load_u32(v+len-4);
 	}
-	c += b; c -= fn_rotl(a, 9);
-	d += a; d -= fn_rotl(b, 18);
-	t = (seed2 ^ l) - fn_rotl(a^b,7);
-	t += c; t += fn_rotl(d,13);
+	c += b; c -= fn_rotl(a + seed2, 9);
+	d += a; d -= fn_rotl(b + seed1, 18);
+	t = (seed1 ^ l) - fn_rotl(a^b,7);
+	c ^= t; c -= fn_rotl(t,11);
 	d ^= c; d -= fn_rotl(c,25);
 	t ^= d; t -= fn_rotl(d,16);
 	c ^= t; c -= fn_rotl(t,4);
